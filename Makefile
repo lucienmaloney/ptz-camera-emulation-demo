@@ -1,6 +1,7 @@
 CXX=g++
-CXXFLAGS=-std=c++17 -O3 -Wall -Wextra -I include/
-#gstreamer/=`pkg-config --cflags --libs gstreamer-1.0` -I/usr/include/gstreamer-1.0
+CXXFLAGS=-std=c++17 -O3 -Wall -Wextra
+GSTFLAGS1=`pkg-config --cflags gstreamer-rtsp-server-1.0`
+GSTFLAGS2=`pkg-config --libs gstreamer-rtsp-server-1.0`
 
 .PHONY: clean, all, build
 
@@ -12,8 +13,14 @@ clean:
 build:
 	mkdir -p build 
 
-build/ptz-demo-client.out: ptz-demo-client.cpp ptz-demo-client.hpp
-	$(CXX) $(CXXFLAGS) $< -o $@
+build/ptz-demo-client.out: build/ptz-demo-client.o
+	$(CXX) $(CXXFLAGS) $< -o $@ $(GSTFLAGS2)
 
-build/ptz-demo-server.out: ptz-demo-server.cpp ptz-demo-server.hpp
-	$(CXX) $(CXXFLAGS) $< -o $@
+build/ptz-demo-client.o: ptz-demo-client.cpp ptz-demo-client.hpp
+	$(CXX) $(CXXFLAGS) $(GSTFLAGS1) $< -c -o $@
+
+build/ptz-demo-server.out: build/ptz-demo-server.o
+	$(CXX) $(CXXFLAGS) $< -o $@ $(GSTFLAGS2)
+
+build/ptz-demo-server.o: ptz-demo-server.cpp ptz-demo-server.hpp
+	$(CXX) $(CXXFLAGS) $(GSTFLAGS1) $< -c -o $@
