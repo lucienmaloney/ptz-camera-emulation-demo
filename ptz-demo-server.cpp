@@ -3,8 +3,8 @@
 int main(int argc, char* argv[]) {
   TCLAP::CmdLine cmd("PTZ Emulation Demo w/ RTSP+ONVIF", ' ', "0.1");
 
-  TCLAP::UnlabeledValueArg<std::string> filename("filename", "The segmented video file to stream from", false, "segmented.mp4", "filename");
-  cmd.add(filename);
+  TCLAP::UnlabeledValueArg<std::string> segmentedFile("filename", "The segmented video file to stream from", false, "segmented.mp4", "filename");
+  cmd.add(segmentedFile);
 
   TCLAP::ValueArg<float> segmentLength("l", "segment-length", "The length of one segment of the overall video in seconds", false, 10, "segment-length");
   cmd.add(segmentLength);
@@ -28,10 +28,18 @@ int main(int argc, char* argv[]) {
   cmd.add(zoomDelta);
 
   cmd.parse(argc, argv);
+  filename = segmentedFile.getValue();
 
   GMainLoop* loop = g_main_loop_new(NULL, false);
-  std::cout << "hello world\n";
   GstRTSPServer* server = gst_rtsp_onvif_server_new();
-  std::cout << server << std::endl;
+  GstRTSPMountPoints* mounts = gst_rtsp_server_get_mount_points (server);
+  GstRTSPMediaFactory* factory = onvif_factory_new();
+  gst_rtsp_media_factory_set_media_gtype (factory, GST_TYPE_RTSP_ONVIF_MEDIA);
+  gst_rtsp_mount_points_add_factory (mounts, "/", factory);
+  gst_rtsp_server_attach (server, NULL);
+
+  std::cout << "Demo server running at rtsp://127.0.0.1:" << gst_rtsp_server_get_service (server) << std::endl;
+  g_main_loop_run(loop);
+
   return 0;
 }
