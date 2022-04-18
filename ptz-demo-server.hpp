@@ -6,3 +6,7 @@
 std::string filename;
 
 #include "src/server-helpers.hpp"
+
+void handleArgs(TCLAP::CmdLine& cmd, int argc, char* argv[]);
+GMainLoop* initializeLoop();
+
