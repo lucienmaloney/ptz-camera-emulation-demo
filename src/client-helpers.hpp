@@ -58,8 +58,6 @@ static Command commands[] = {
   {NULL},
 };
 
-static gchar *rtsp_address;
-
 #define MAKE_AND_ADD(var, pipe, name, label, elem_name) \
 G_STMT_START { \
   if (G_UNLIKELY (!(var = (gst_element_factory_make (name, elem_name))))) { \
@@ -106,7 +104,7 @@ setup (Context * ctx)
   MAKE_AND_ADD (vqueue, ctx->pipe, "queue", done, NULL);
   MAKE_AND_ADD (ctx->sink, ctx->pipe, "xvimagesink", done, NULL);
 
-  g_object_set (ctx->src, "location", rtsp_address, NULL);
+  g_object_set (ctx->src, "location", rtspAddress.c_str(), NULL);
   g_object_set (ctx->src, "onvif-mode", TRUE, NULL);
   g_object_set (ctx->src, "tcp-timeout", 0, NULL);
   g_object_set (toverlay, "show-times-as-dates", TRUE, NULL);
