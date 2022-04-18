@@ -1,7 +1,7 @@
 CXX=g++
 CXXFLAGS=-std=c++17 -O3 -Wall -Wextra
-GSTFLAGS1=`pkg-config --cflags gstreamer-rtsp-server-1.0`
-GSTFLAGS2=`pkg-config --libs gstreamer-rtsp-server-1.0`
+GSTFLAGS1=`pkg-config --cflags gstreamer-rtsp-server-1.0 gstreamer-rtsp-1.0`
+GSTFLAGS2=`pkg-config --libs gstreamer-rtsp-server-1.0 gstreamer-rtsp-1.0`
 
 .PHONY: clean, all, build
 

@@ -1,7 +1,7 @@
 #include "ptz-demo-server.hpp"
 
 int main(int argc, char* argv[]) {
-  TCLAP::CmdLine cmd("PTZ Emulation Demo w/ RTSP+ONVIF", ' ', "0.1");
+  TCLAP::CmdLine cmd("PTZ Emulation Demo Server w/ RTSP+ONVIF", ' ', "0.1");
 
   TCLAP::UnlabeledValueArg<std::string> segmentedFile("filename", "The segmented video file to stream from", false, "segmented.mp4", "filename");
   cmd.add(segmentedFile);
