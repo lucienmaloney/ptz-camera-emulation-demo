@@ -19,54 +19,12 @@ int main(int argc, char* argv[]) {
 
   rtspAddress = rtspUrl.getValue();
 
-  GOptionContext *optctx;
-  Context ctx = { 0, };
-  GstBus *bus;
-  GError *error = NULL;
-  const gchar *range = NULL;
-  const gchar *frames = NULL;
-  const gchar *rate_control = NULL;
-  /* gchar *default_speed = */
-  /*     g_strdup_printf ("Speed to request (default: %.1f)", DEFAULT_SPEED); */
-  SeekParameters seek_params =
-      { NULL, DEFAULT_SPEED, NULL, NULL, DEFAULT_REVERSE };
-  GOptionEntry entries[] = {
-    /* {"range", 0, 0, G_OPTION_ARG_STRING, &range, */
-    /*     "Range to seek (default: " DEFAULT_RANGE ")", "RANGE"}, */
-    /* {"speed", 0, 0, G_OPTION_ARG_DOUBLE, &seek_params.speed, */
-    /*     default_speed, "SPEED"}, */
-    /* {"frames", 0, 0, G_OPTION_ARG_STRING, &frames, */
-    /*     "Frames to request (default: " DEFAULT_FRAMES ")", "FRAMES"}, */
-    /* {"rate-control", 0, 0, G_OPTION_ARG_STRING, &rate_control, */
-    /*     "Apply rate control on the client side (default: " */
-    /*       DEFAULT_RATE_CONTROL ")", "RATE_CONTROL"}, */
-    /* {"reverse", 0, 0, G_OPTION_ARG_NONE, &seek_params.reverse, */
-    /*     "Playback direction", ""}, */
-    {NULL}
-  };
+  Context ctx {0, 0, 0, 0, 0, 0, 0, 0, 0};
+  SeekParameters seek_params = { NULL, DEFAULT_SPEED, NULL, NULL, DEFAULT_REVERSE };
 
-  optctx = g_option_context_new ("<rtsp-url> - ONVIF RTSP Client");
-  g_option_context_add_main_entries (optctx, entries, NULL);
-  g_option_context_add_group (optctx, gst_init_get_option_group ());
-  g_option_context_parse (optctx, &argc, &argv, &error);
-  g_option_context_free (optctx);
+  ptz_initialize(ctx, seek_params, argc, argv);
 
-  seek_params.range = g_strdup (range ? range : DEFAULT_RANGE);
-  seek_params.frames = g_strdup (frames ? frames : DEFAULT_FRAMES);
-  seek_params.rate_control =
-      g_strdup (rate_control ? rate_control : DEFAULT_RATE_CONTROL);
-
-  ctx.seek_params = &seek_params;
-  ctx.new_range = TRUE;
-  ctx.reset_sync = FALSE;
-
-  ctx.pipe = gst_pipeline_new (NULL);
-  setup(&ctx);
-  do_seek (&ctx);
-
-  ctx.loop = g_main_loop_new (NULL, FALSE);
-
-  bus = gst_pipeline_get_bus (GST_PIPELINE (ctx.pipe));
+  GstBus* bus = gst_pipeline_get_bus (GST_PIPELINE (ctx.pipe));
   gst_bus_add_watch (bus, (GstBusFunc) bus_message_cb, &ctx);
 
   gst_element_set_state (ctx.pipe, GST_STATE_PLAYING);

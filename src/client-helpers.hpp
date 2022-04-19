@@ -603,3 +603,29 @@ bus_message_cb (GstBus * bus, GstMessage * message, Context * ctx)
 
   return TRUE;
 }
+
+void ptz_initialize(Context& ctx, SeekParameters& seek_params, int argc, char* argv[]) {
+  GError *error = NULL;
+  GOptionEntry entries[] = { {NULL} };
+  GOptionContext *optctx;
+  optctx = g_option_context_new ("");
+  g_option_context_add_main_entries (optctx, entries, NULL);
+  g_option_context_add_group (optctx, gst_init_get_option_group ());
+  g_option_context_parse (optctx, &argc, &argv, &error);
+  g_option_context_free (optctx);
+
+  seek_params.range = g_strdup(DEFAULT_RANGE);
+  seek_params.frames = g_strdup(DEFAULT_FRAMES);
+  seek_params.rate_control = g_strdup(DEFAULT_RATE_CONTROL);
+
+  ctx.seek_params = &seek_params;
+  ctx.new_range = TRUE;
+  ctx.reset_sync = FALSE;
+
+  ctx.pipe = gst_pipeline_new (NULL);
+  setup(&ctx);
+  do_seek (&ctx);
+
+  ctx.loop = g_main_loop_new (NULL, FALSE);
+
+}
