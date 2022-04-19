@@ -1,33 +1,3 @@
-typedef struct
-{
-  gchar *range;
-  gdouble speed;
-  gchar *frames;
-  gchar *rate_control;
-  gboolean reverse;
-} SeekParameters;
-
-typedef struct
-{
-  GstElement *src;
-  GstElement *sink;
-  GstElement *pipe;
-  SeekParameters *seek_params;
-  GMainLoop *loop;
-  GIOChannel *io;
-  gboolean new_range;
-  guint io_watch_id;
-  gboolean reset_sync;
-} Context;
-
-typedef struct
-{
-  const gchar *name;
-  gboolean has_argument;
-  const gchar *help;
-    gboolean (*func) (Context * ctx, gchar * arg, gboolean * async);
-} Command;
-
 static gboolean cmd_help (Context * ctx, gchar * arg, gboolean * async);
 static gboolean cmd_pause (Context * ctx, gchar * arg, gboolean * async);
 static gboolean cmd_play (Context * ctx, gchar * arg, gboolean * async);
@@ -38,23 +8,26 @@ static gboolean cmd_frames (Context * ctx, gchar * arg, gboolean * async);
 static gboolean cmd_rate_control (Context * ctx, gchar * arg, gboolean * async);
 static gboolean cmd_step_forward (Context * ctx, gchar * arg, gboolean * async);
 
+struct Command {
+  const gchar *name;
+  gboolean has_argument;
+  const gchar *help;
+  gboolean (*func) (Context * ctx, gchar * arg, gboolean * async);
+};
+
 static Command commands[] = {
   {"help", FALSE, "Display list of valid commands", cmd_help},
   {"pause", FALSE, "Pause playback", cmd_pause},
   {"play", FALSE, "Resume playback", cmd_play},
   {"reverse", FALSE, "Reverse playback direction", cmd_reverse},
-  {"range", TRUE,
-        "Seek to the specified range, example: \"range: 19000101T000000Z-19000101T000200Z\"",
-      cmd_range},
+  {"range", TRUE, "Seek to the specified range, example: \"range: 19000101T000000Z-19000101T000200Z\"", cmd_range},
   {"speed", TRUE, "Set the playback speed, example: \"speed: 1.0\"", cmd_speed},
-  {"frames", TRUE,
-        "Set the frames trickmode, example: \"frames: intra\", \"frames: predicted\", \"frames: intra/1000\"",
-      cmd_frames},
-  {"rate-control", TRUE,
-        "Set the rate control mode, example: \"rate-control: no\"",
-      cmd_rate_control},
-  {"s", FALSE, "Step to the following frame (in current playback direction)",
-      cmd_step_forward},
+  {"ptzAbsoluteMove", TRUE, "Set the absolute PTZ position", PTZ::absoluteMove},
+  {"ptzRelativeMove", TRUE, "Set the relative PTZ position", PTZ::relativeMove},
+  {"ptzContinuousMove", TRUE, "Cause the PTZ camera to perform a gradual change", PTZ::continuousMove},
+  {"ptzStop", FALSE, "Stop any continuous PTZ moves in progress", PTZ::stop},
+  {"ptzGoToHome", FALSE, "Move to the PTZ home position", PTZ::goToHome},
+  {"ptzSetHome", TRUE, "Update the PTZ home position", PTZ::setHome},
   {NULL},
 };
 

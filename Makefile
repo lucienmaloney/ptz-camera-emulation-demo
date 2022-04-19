@@ -16,7 +16,7 @@ build:
 build/ptz-demo-client.out: build/ptz-demo-client.o
 	$(CXX) $(CXXFLAGS) $< -o $@ $(GSTFLAGS2)
 
-build/ptz-demo-client.o: ptz-demo-client.cpp ptz-demo-client.hpp src/client-helpers.hpp
+build/ptz-demo-client.o: ptz-demo-client.cpp src/ptzTranslation.hpp ptz-demo-client.hpp src/client-helpers.hpp
 	$(CXX) $(CXXFLAGS) $(GSTFLAGS1) $< -c -o $@
 
 build/ptz-demo-server.out: build/ptz-demo-server.o
