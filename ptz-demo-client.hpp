@@ -1,4 +1,5 @@
 #include <iostream>
+#include <cmath>
 #include <gst/gst.h>
 #include <gst/rtsp/rtsp.h>
 #include <tclap/CmdLine.h>

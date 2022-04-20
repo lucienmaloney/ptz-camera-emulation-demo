@@ -20,7 +20,6 @@ static Command commands[] = {
   {"pause", FALSE, "Pause playback", cmd_pause},
   {"play", FALSE, "Resume playback", cmd_play},
   {"reverse", FALSE, "Reverse playback direction", cmd_reverse},
-  {"range", TRUE, "Seek to the specified range, example: \"range: 19000101T000000Z-19000101T000200Z\"", cmd_range},
   {"speed", TRUE, "Set the playback speed, example: \"speed: 1.0\"", cmd_speed},
   {"ptzAbsoluteMove", TRUE, "Set the absolute PTZ position", PTZ::absoluteMove},
   {"ptzRelativeMove", TRUE, "Set the relative PTZ position", PTZ::relativeMove},
