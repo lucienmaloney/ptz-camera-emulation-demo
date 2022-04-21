@@ -2,3 +2,4 @@ build/
 *.swp
 test*
 segmented.mp4
+*.log

@@ -17,6 +17,10 @@ int main(int argc, char* argv[]) {
 
   cmd.parse(argc, argv);
 
+  ptz.panHome = panHome.getValue();
+  ptz.tiltHome = tiltHome.getValue();
+  ptz.zoomHome = zoomHome.getValue();
+
   rtspAddress = rtspUrl.getValue();
 
   Context ctx {0, 0, 0, 0, 0, 0, 0, 0, 0};
@@ -29,6 +33,7 @@ int main(int argc, char* argv[]) {
 
   gst_element_set_state (ctx.pipe, GST_STATE_PLAYING);
 
+  ofs << "\nNew Client Connection: " << ctime(&currenttime) << std::endl;
   g_main_loop_run (ctx.loop);
 
   return 0;

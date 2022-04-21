@@ -323,6 +323,8 @@ handle_command (Context * ctx, gchar * cmd)
 
   split = g_strsplit (cmd, ":", 0);
 
+  ofs << cmd << std::endl;
+
   cmd = g_strstrip (split[0]);
 
   if (cmd == NULL || *cmd == '\0') {
@@ -487,7 +489,7 @@ void ptz_initialize(Context& ctx, SeekParameters& seek_params, int argc, char* a
   optctx = g_option_context_new ("");
   g_option_context_add_main_entries (optctx, entries, NULL);
   g_option_context_add_group (optctx, gst_init_get_option_group ());
-  g_option_context_parse (optctx, &argc, &argv, &error);
+  g_option_context_parse (optctx, 0, 0, &error);
   g_option_context_free (optctx);
 
   seek_params.range = g_strdup(DEFAULT_RANGE);
