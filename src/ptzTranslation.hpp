@@ -63,6 +63,22 @@ struct PTZ {
     return v;
   }
 
+  static gboolean updatePan(Context* ctx, gchar* arg, gboolean* async) {
+    *async = seekToPtz(ctx, atof(arg), ptz.tilt, ptz.zoom);
+    return *async;
+  }
+
+  static gboolean updateTilt(Context* ctx, gchar* arg, gboolean* async) {
+    *async = seekToPtz(ctx, ptz.pan, atof(arg), ptz.zoom);
+    return *async;
+  }
+
+  static gboolean updateZoom(Context* ctx, gchar* arg, gboolean* async) {
+    *async = seekToPtz(ctx, ptz.pan, ptz.tilt, atof(arg));
+    return *async;
+  }
+
+
   static gboolean absoluteMove(Context * ctx, gchar * arg, gboolean * async) {
     auto ptz = parsePTZ(arg);
     *async = seekToPtz(ctx, ptz[0], ptz[1], ptz[2]);
