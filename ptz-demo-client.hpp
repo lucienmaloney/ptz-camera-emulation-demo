@@ -1,5 +1,6 @@
 #include <iostream>
 #include <cmath>
+#include <chrono>
 #include <gst/gst.h>
 #include <gst/rtsp/rtsp.h>
 #include <tclap/CmdLine.h>
@@ -39,6 +40,10 @@ struct PTZData {
 };
 
 PTZData ptz {0, 0, 1};
+
+auto timestart = std::chrono::high_resolution_clock::now();
+
+gboolean begun = false;
 
 #include "src/ptzTranslation.hpp"
 #include "src/client-helpers.hpp"

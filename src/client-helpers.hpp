@@ -151,7 +151,7 @@ translate_seek_parameters (Context * ctx, SeekParameters * seek_params, ulong na
   }
 
   start = (GstClockTime)(start + nanooffset);
-  stop = (GstClockTime)(stop + nanooffset);
+  stop = (GstClockTime)(stop + 50000000);
 
   start_type = GST_SEEK_TYPE_SET;
   stop_type = GST_SEEK_TYPE_SET;
@@ -539,6 +539,8 @@ prompt_off (Context * ctx)
   ctx->io = NULL;
 }
 
+bool looped = false;
+
 static gboolean
 bus_message_cb (GstBus * bus, GstMessage * message, Context * ctx)
 {
@@ -570,8 +572,17 @@ bus_message_cb (GstBus * bus, GstMessage * message, Context * ctx)
       break;
     }
     case GST_MESSAGE_ASYNC_DONE:{
-      prompt_on (ctx);
+      if (!looped) prompt_on (ctx);
+      if (looped) looped = false;
+      break;
     }
+    case 1:
+        if (begun) {
+          ctx->new_range = TRUE;
+          do_seek(ctx, 65000000);
+          looped = true;
+        }
+      break;
     default:
       break;
   }
@@ -599,7 +610,8 @@ void ptz_initialize(Context& ctx, SeekParameters& seek_params, int argc, char* a
 
   ctx.pipe = gst_pipeline_new (NULL);
   setup(&ctx);
-  do_seek (&ctx);
+  /* do_seek (&ctx); */
+  PTZ::seekToPtz(&ctx, ptz.panHome, ptz.tiltHome, ptz.zoomHome);
 
   ctx.loop = g_main_loop_new (NULL, FALSE);
 

@@ -26,7 +26,12 @@ struct PTZ {
     ctx->seek_params->range = g_strdup(ptzRange.data());
     ctx->new_range = TRUE;
 
-    return do_seek(ctx, 65000000);
+    auto timeend = std::chrono::high_resolution_clock::now();
+    ulong elapsed = std::chrono::duration_cast<std::chrono::nanoseconds>(timeend - timestart).count();
+    begun = TRUE;
+
+    /* return do_seek(ctx, 65000000); */
+    return do_seek(ctx, elapsed % 10000000000);
   }
 
   static int ptzToSeconds(float p, float t, float z) {
