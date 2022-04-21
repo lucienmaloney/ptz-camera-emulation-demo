@@ -1,13 +1,6 @@
-static gboolean do_seek (Context * ctx);
+static gboolean do_seek (Context * ctx, ulong nanooffset);
 
 struct PTZ {
-  static float pan;
-  static float tilt;
-  static float zoom;
-  static float panHome;
-  static float tiltHome;
-  static float zoomHome;
-
   static std::string numToString(int x) {
     if (x == 0) {
       return "00";
@@ -33,7 +26,7 @@ struct PTZ {
     ctx->seek_params->range = g_strdup(ptzRange.data());
     ctx->new_range = TRUE;
 
-    return do_seek(ctx);
+    return do_seek(ctx, 65000000);
   }
 
   static int ptzToSeconds(float p, float t, float z) {
@@ -45,10 +38,10 @@ struct PTZ {
   
   static bool seekToPtz(Context* ctx, float p, float t, float z) {
     int start = ptzToSeconds(p, t, z);
-    /* pan = p; */
-    /* tilt = t; */
-    /* zoom = z; */
-    return seekToRange(ctx, start + 1, start + 10);
+    ptz.pan = p;
+    ptz.tilt = t;
+    ptz.zoom = z;
+    return seekToRange(ctx, start, start + 10);
   }
 
   static std::vector<float> parsePTZ(gchar* arg) {
@@ -71,8 +64,12 @@ struct PTZ {
     return *async;
   };
   static gboolean relativeMove(Context * ctx, gchar * arg, gboolean * async) {;
-    *async = false;
-    return true;
+    auto newptz = parsePTZ(arg);
+    ptz.pan += newptz[0];
+    ptz.tilt += newptz[1];
+    ptz.zoom += newptz[2];
+    *async = seekToPtz(ctx, ptz.pan, ptz.tilt, ptz.zoom);
+    return *async;
   };
   static gboolean continuousMove(Context * ctx, gchar * arg, gboolean * async) {;
     *async = false;
@@ -83,12 +80,15 @@ struct PTZ {
     return true;
   };
   static gboolean goToHome(Context * ctx, gchar * arg, gboolean * async) {;
-    *async = seekToPtz(ctx, 0, 0, 1);
+    *async = seekToPtz(ctx, ptz.panHome, ptz.tiltHome, ptz.zoomHome);
     return *async;
   };
   static gboolean setHome(Context * ctx, gchar * arg, gboolean * async) {;
     *async = false;
+    auto newptz = parsePTZ(arg);
+    ptz.panHome = newptz[0];
+    ptz.tiltHome = newptz[1];
+    ptz.zoomHome = newptz[2];
     return true;
   };
 };
-

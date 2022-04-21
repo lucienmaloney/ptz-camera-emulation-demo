@@ -20,7 +20,7 @@ static Command commands[] = {
   {"pause", FALSE, "Pause playback", cmd_pause},
   {"play", FALSE, "Resume playback", cmd_play},
   {"reverse", FALSE, "Reverse playback direction", cmd_reverse},
-  {"speed", TRUE, "Set the playback speed, example: \"speed: 1.0\"", cmd_speed},
+  {"speed", TRUE, "Set the playback speed", cmd_speed},
   {"ptzAbsoluteMove", TRUE, "Set the absolute PTZ position", PTZ::absoluteMove},
   {"ptzRelativeMove", TRUE, "Set the relative PTZ position", PTZ::relativeMove},
   {"ptzContinuousMove", TRUE, "Cause the PTZ camera to perform a gradual change", PTZ::continuousMove},
@@ -124,7 +124,7 @@ get_current_position (Context * ctx, gboolean reverse)
 }
 
 static GstEvent *
-translate_seek_parameters (Context * ctx, SeekParameters * seek_params)
+translate_seek_parameters (Context * ctx, SeekParameters * seek_params, ulong nanooffset = 0)
 {
   GstEvent *ret = NULL;
   gchar *range_str = NULL;
@@ -149,6 +149,9 @@ translate_seek_parameters (Context * ctx, SeekParameters * seek_params)
     GST_ERROR ("Invalid range, start > stop: %s", seek_params->range);
     goto done;
   }
+
+  start = (GstClockTime)(start + nanooffset);
+  stop = (GstClockTime)(stop + nanooffset);
 
   start_type = GST_SEEK_TYPE_SET;
   stop_type = GST_SEEK_TYPE_SET;
@@ -269,12 +272,12 @@ cmd_play (Context * ctx, gchar * arg, gboolean * async)
 }
 
 static gboolean
-do_seek (Context * ctx)
+do_seek (Context * ctx, ulong nanooffset = 0)
 {
   gboolean ret = FALSE;
   GstEvent *event;
 
-  if (!(event = translate_seek_parameters (ctx, ctx->seek_params))) {
+  if (!(event = translate_seek_parameters (ctx, ctx->seek_params, nanooffset))) {
     GST_ERROR ("Failed to create seek event");
     goto done;
   }

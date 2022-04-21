@@ -27,5 +27,18 @@ struct Context {
   gboolean reset_sync;
 };
 
+struct PTZData {
+  float pan;
+  float tilt;
+  float zoom;
+  float panHome;
+  float tiltHome;
+  float zoomHome;
+
+  PTZData(float p, float t, float z): pan{p}, panHome{p}, tilt{t}, tiltHome{t}, zoom{z}, zoomHome{z} {}
+};
+
+PTZData ptz {0, 0, 1};
+
 #include "src/ptzTranslation.hpp"
 #include "src/client-helpers.hpp"
