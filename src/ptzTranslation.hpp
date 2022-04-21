@@ -30,7 +30,6 @@ struct PTZ {
     ulong elapsed = std::chrono::duration_cast<std::chrono::nanoseconds>(timeend - timestart).count();
     begun = TRUE;
 
-    /* return do_seek(ctx, 65000000); */
     return do_seek(ctx, elapsed % 10000000000);
   }
 
@@ -84,6 +83,7 @@ struct PTZ {
     *async = seekToPtz(ctx, ptz[0], ptz[1], ptz[2]);
     return *async;
   };
+
   static gboolean relativeMove(Context * ctx, gchar * arg, gboolean * async) {;
     auto newptz = parsePTZ(arg);
     ptz.pan += newptz[0];
@@ -92,18 +92,12 @@ struct PTZ {
     *async = seekToPtz(ctx, ptz.pan, ptz.tilt, ptz.zoom);
     return *async;
   };
-  static gboolean continuousMove(Context * ctx, gchar * arg, gboolean * async) {;
-    *async = false;
-    return true;
-  };
-  static gboolean stop(Context * ctx, gchar * arg, gboolean * async) {;
-    *async = false;
-    return true;
-  };
+
   static gboolean goToHome(Context * ctx, gchar * arg, gboolean * async) {;
     *async = seekToPtz(ctx, ptz.panHome, ptz.tiltHome, ptz.zoomHome);
     return *async;
   };
+
   static gboolean setHome(Context * ctx, gchar * arg, gboolean * async) {;
     *async = false;
     auto newptz = parsePTZ(arg);

@@ -1,12 +1,7 @@
 static gboolean cmd_help (Context * ctx, gchar * arg, gboolean * async);
 static gboolean cmd_pause (Context * ctx, gchar * arg, gboolean * async);
 static gboolean cmd_play (Context * ctx, gchar * arg, gboolean * async);
-static gboolean cmd_reverse (Context * ctx, gchar * arg, gboolean * async);
 static gboolean cmd_range (Context * ctx, gchar * arg, gboolean * async);
-static gboolean cmd_speed (Context * ctx, gchar * arg, gboolean * async);
-static gboolean cmd_frames (Context * ctx, gchar * arg, gboolean * async);
-static gboolean cmd_rate_control (Context * ctx, gchar * arg, gboolean * async);
-static gboolean cmd_step_forward (Context * ctx, gchar * arg, gboolean * async);
 
 struct Command {
   const gchar *name;
@@ -21,8 +16,6 @@ static Command commands[] = {
   {"play", FALSE, "Resume playback", cmd_play},
   {"absoluteMove", TRUE, "Set the absolute PTZ position", PTZ::absoluteMove},
   {"relativeMove", TRUE, "Set the relative PTZ position", PTZ::relativeMove},
-  {"continuousMove", TRUE, "Cause the PTZ camera to perform a gradual change", PTZ::continuousMove},
-  {"stop", FALSE, "Stop any continuous PTZ moves in progress", PTZ::stop},
   {"goToHome", FALSE, "Move to the PTZ home position", PTZ::goToHome},
   {"setHome", TRUE, "Update the PTZ home position", PTZ::setHome},
   {"p", TRUE, "Update the PTZ pan position", PTZ::updatePan},
@@ -304,22 +297,6 @@ done:
 }
 
 static gboolean
-cmd_reverse (Context * ctx, gchar * arg, gboolean * async)
-{
-  gboolean ret = TRUE;
-
-  g_print ("Reversing playback direction\n");
-
-  ctx->seek_params->reverse = !ctx->seek_params->reverse;
-
-  ret = do_seek (ctx);
-
-  *async = ret == TRUE;
-
-  return ret;
-}
-
-static gboolean
 cmd_range (Context * ctx, gchar * arg, gboolean * async)
 {
   gboolean ret = TRUE;
@@ -334,94 +311,6 @@ cmd_range (Context * ctx, gchar * arg, gboolean * async)
 
   *async = ret == TRUE;
 
-  return ret;
-}
-
-static gboolean
-cmd_speed (Context * ctx, gchar * arg, gboolean * async)
-{
-  gboolean ret = FALSE;
-  gchar *endptr = NULL;
-  gdouble new_speed;
-
-  new_speed = g_ascii_strtod (arg, &endptr);
-
-  g_print ("Switching gears\n");
-
-  if (endptr == NULL || *endptr != '\0' || new_speed <= 0.0) {
-    GST_ERROR ("Invalid value for speed: %s", arg);
-    goto done;
-  }
-
-  ctx->seek_params->speed = new_speed;
-  ret = do_seek (ctx);
-
-done:
-  *async = ret == TRUE;
-  return ret;
-}
-
-static gboolean
-cmd_frames (Context * ctx, gchar * arg, gboolean * async)
-{
-  gboolean ret = TRUE;
-
-  g_print ("Changing Frames trickmode\n");
-
-  g_free (ctx->seek_params->frames);
-  ctx->seek_params->frames = g_strdup (arg);
-  ret = do_seek (ctx);
-  *async = ret == TRUE;
-
-  return ret;
-}
-
-static gboolean
-cmd_rate_control (Context * ctx, gchar * arg, gboolean * async)
-{
-  gboolean ret = FALSE;
-
-  *async = FALSE;
-
-  if (!g_strcmp0 (arg, "no")) {
-    g_object_set (ctx->sink, "sync", FALSE, NULL);
-    ret = TRUE;
-  } else if (!g_strcmp0 (arg, "yes")) {
-    /* TODO: there probably is a solution that doesn't involve sending
-     * a request to the server to reset our position */
-    ctx->reset_sync = TRUE;
-    ret = do_seek (ctx);
-    *async = TRUE;
-  } else {
-    GST_ERROR ("Invalid rate-control: %s", arg);
-    goto done;
-  }
-
-  ret = TRUE;
-
-done:
-  return ret;
-}
-
-static gboolean
-cmd_step_forward (Context * ctx, gchar * arg, gboolean * async)
-{
-  gboolean ret = FALSE;
-  GstEvent *event;
-
-  event = gst_event_new_step (GST_FORMAT_BUFFERS, 1, 1.0, TRUE, FALSE);
-
-  g_print ("Stepping\n");
-
-  if (!gst_element_send_event (ctx->sink, event)) {
-    GST_ERROR ("Failed to step forward");
-    goto done;
-  }
-
-  ret = TRUE;
-
-done:
-  *async = ret == TRUE;
   return ret;
 }
 
@@ -578,11 +467,11 @@ bus_message_cb (GstBus * bus, GstMessage * message, Context * ctx)
       break;
     }
     case 1:
-        if (begun) {
-          ctx->new_range = TRUE;
-          do_seek(ctx, 65000000);
-          looped = true;
-        }
+      if (begun) {
+        ctx->new_range = TRUE;
+        do_seek(ctx, 65000000);
+        looped = true;
+      }
       break;
     default:
       break;
@@ -611,7 +500,7 @@ void ptz_initialize(Context& ctx, SeekParameters& seek_params, int argc, char* a
 
   ctx.pipe = gst_pipeline_new (NULL);
   setup(&ctx);
-  /* do_seek (&ctx); */
+
   PTZ::seekToPtz(&ctx, ptz.panHome, ptz.tiltHome, ptz.zoomHome);
 
   ctx.loop = g_main_loop_new (NULL, FALSE);
