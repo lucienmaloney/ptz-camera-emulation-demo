@@ -13,12 +13,12 @@ The client executable is located at `./build/ptz-demo-client.out` and requires b
 
 For the below commands, pan (p) and tilt (t) are in degree units, while zoom (z) starts at zoom level 1 and varies from there.
 
-`pause`: Pause playback
-`play`: Resume playback
-`absoluteMove: p,t,z`: Set the absolute PTZ position eg. `absoluteMove: 5,-2.5,1.25`
-`relativeMove: p,t,z`: Set the relative PTZ position eg. `relativeMove: 2.5,0,-0.25`
-`goToHome`: Update the PTZ position to its home
-`setHome: p,t,z`: Set a new PTZ home position eg. `setHome: 0,0,1.5`
-`p: x`: Set the absolute pan position eg. `p: 2.5`
-`t: x`: Set the absolute tilt position eg. `t: -12.5`
-`z: x`: Set the absolute zoom position eg. `z: 2`
+- `pause`: Pause playback
+- `play`: Resume playback
+- `absoluteMove: p,t,z`: Set the absolute PTZ position eg. `absoluteMove: 5,-2.5,1.25`
+- `relativeMove: p,t,z`: Set the relative PTZ position eg. `relativeMove: 2.5,0,-0.25`
+- `goToHome`: Update the PTZ position to its home
+- `setHome: p,t,z`: Set a new PTZ home position eg. `setHome: 0,0,1.5`
+- `p: x`: Set the absolute pan position eg. `p: 2.5`
+- `t: x`: Set the absolute tilt position eg. `t: -12.5`
+- `z: x`: Set the absolute zoom position eg. `z: 2`
